@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Buffalo Bills — Схема нападения 2025</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&display=swap');
+
+:root {
+–bills-blue: #00338D;
+–bills-red: #C60C30;
+–bills-white: #FFFFFF;
+–field-green: #2d5a1b;
+–field-light: #3a7a22;
+–line-color: rgba(255,255,255,0.35);
+}
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: #0a0a1a;
+font-family: ‘Barlow Condensed’, sans-serif;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 20px;
+}
+
+header {
+text-align: center;
+margin-bottom: 24px;
+animation: fadeDown 0.6s ease both;
+}
+
+header h1 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: clamp(28px, 6vw, 52px);
+color: var(–bills-white);
+letter-spacing: 4px;
+line-height: 1;
+}
+
+header h1 span { color: var(–bills-red); }
+
+header p {
+color: #aaa;
+font-size: 14px;
+letter-spacing: 3px;
+text-transform: uppercase;
+margin-top: 4px;
+}
+
+.field-wrapper {
+position: relative;
+width: 100%;
+max-width: 800px;
+background: var(–field-green);
+border-radius: 12px;
+overflow: hidden;
+box-shadow: 0 0 60px rgba(0,51,141,0.5), 0 0 120px rgba(198,12,48,0.2);
+animation: fadeUp 0.7s ease 0.2s both;
+}
+
+/* Field lines */
+.field-wrapper::before {
+content: ‘’;
+position: absolute;
+inset: 0;
+background:
+repeating-linear-gradient(
+180deg,
+transparent 0px,
+transparent calc(16.6% - 1px),
+rgba(255,255,255,0.12) calc(16.6% - 1px),
+rgba(255,255,255,0.12) 16.6%
+);
+pointer-events: none;
+z-index: 0;
+}
+
+.field-inner {
+position: relative;
+padding: 30px 20px 20px;
+z-index: 1;
+}
+
+/* Scrimmage line */
+.scrimmage-line {
+position: absolute;
+left: 0; right: 0;
+bottom: 22%;
+height: 3px;
+background: linear-gradient(90deg, transparent, var(–bills-red), var(–bills-red), transparent);
+opacity: 0.8;
+z-index: 2;
+}
+
+.scrimmage-label {
+position: absolute;
+right: 10px;
+bottom: calc(22% + 6px);
+font-size: 10px;
+color: var(–bills-red);
+letter-spacing: 2px;
+text-transform: uppercase;
+}
+
+/* Rows */
+.row {
+display: flex;
+justify-content: center;
+align-items: flex-end;
+gap: 10px;
+margin-bottom: 18px;
+flex-wrap: wrap;
+}
+
+/* Player card */
+.player {
+display: flex;
+flex-direction: column;
+align-items: center;
+cursor: pointer;
+animation: popIn 0.5s ease both;
+}
+
+.player:nth-child(1) { animation-delay: 0.3s; }
+.player:nth-child(2) { animation-delay: 0.4s; }
+.player:nth-child(3) { animation-delay: 0.5s; }
+.player:nth-child(4) { animation-delay: 0.6s; }
+.player:nth-child(5) { animation-delay: 0.7s; }
+
+.player-icon {
+width: 56px;
+height: 56px;
+border-radius: 50%;
+border: 3px solid var(–bills-blue);
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 13px;
+font-weight: 700;
+color: white;
+position: relative;
+transition: transform 0.2s, box-shadow 0.2s;
+text-align: center;
+line-height: 1.1;
+background: var(–bills-blue);
+}
+
+.player-icon.qb { background: var(–bills-red); border-color: #fff; font-size: 11px; width: 64px; height: 64px; }
+.player-icon.wr { background: #1a4fa8; border-color: #4a90d9; }
+.player-icon.te { background: #0f3d7a; border-color: #2d6abf; }
+.player-icon.rb { background: #7a1520; border-color: var(–bills-red); }
+.player-icon.ol { background: #1a3a6e; border-color: #3a6abf; width: 48px; height: 48px; font-size: 11px; }
+
+.player:hover .player-icon {
+transform: scale(1.15) translateY(-4px);
+box-shadow: 0 8px 25px rgba(198,12,48,0.6);
+}
+
+.player-name {
+font-family: ‘Barlow Condensed’, sans-serif;
+font-size: 11px;
+font-weight: 700;
+color: white;
+text-align: center;
+margin-top: 5px;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+max-width: 70px;
+line-height: 1.2;
+}
+
+.player-pos {
+font-size: 9px;
+color: rgba(255,255,255,0.6);
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+.player-num {
+font-size: 9px;
+color: var(–bills-red);
+font-weight: 700;
+}
+
+/* Routes */
+.routes-svg {
+position: absolute;
+top: 0; left: 0;
+width: 100%; height: 100%;
+pointer-events: none;
+z-index: 0;
+}
+
+/* Tooltip */
+.tooltip {
+display: none;
+position: fixed;
+background: rgba(0,0,20,0.95);
+border: 1px solid var(–bills-red);
+border-radius: 8px;
+padding: 10px 14px;
+z-index: 100;
+max-width: 200px;
+pointer-events: none;
+}
+
+.tooltip.visible { display: block; }
+
+.tooltip h3 {
+font-family: ‘Bebas Neue’, sans-serif;
+font-size: 18px;
+color: var(–bills-red);
+letter-spacing: 2px;
+}
+
+.tooltip p {
+font-size: 12px;
+color: #ccc;
+margin-top: 3px;
+line-height: 1.4;
+}
+
+/* Legend */
+.legend {
+display: flex;
+gap: 16px;
+justify-content: center;
+flex-wrap: wrap;
+margin-top: 16px;
+animation: fadeUp 0.7s ease 0.8s both;
+}
+
+.legend-item {
+display: flex;
+align-items: center;
+gap: 6px;
+font-size: 11px;
+color: #bbb;
+letter-spacing: 1px;
+text-transform: uppercase;
+}
+
+.legend-dot {
+width: 12px; height: 12px;
+border-radius: 50%;
+}
+
+/* Formation label */
+.formation-badge {
+text-align: center;
+margin-top: 16px;
+animation: fadeUp 0.7s ease 1s both;
+}
+
+.formation-badge span {
+background: rgba(198,12,48,0.2);
+border: 1px solid var(–bills-red);
+border-radius: 20px;
+padding: 4px 16px;
+font-size: 12px;
+color: var(–bills-red);
+letter-spacing: 2px;
+text-transform: uppercase;
+}
+
+@keyframes fadeDown {
+from { opacity: 0; transform: translateY(-20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+from { opacity: 0; transform: scale(0.5); }
+to { opacity: 1; transform: scale(1); }
+}
+
+/* Yard lines labels */
+.yard-label {
+position: absolute;
+left: 8px;
+color: rgba(255,255,255,0.25);
+font-size: 10px;
+letter-spacing: 1px;
+font-family: ‘Bebas Neue’, sans-serif;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+<h1>BUFFALO <span>BILLS</span></h1>
+<p>Схема нападения · Сезон 2025</p>
+</header>
+
+<div class="field-wrapper">
+<div class="field-inner">
+
+```
+<!-- Row 1: Wide Receivers spread wide -->
+<div class="row" style="margin-bottom:14px; justify-content: space-between; padding: 0 10px;">
+<div class="player" data-name="Khalil Shakir" data-num="10" data-pos="WR — слот" data-info="Стартовый слот-ресивер. 821 ярд, 5 TD в 2024. Любимая цель Аллена на коротких маршрутах." onclick="showTip(event, this)">
+<div class="player-icon wr">WR</div>
+<div class="player-name">Shakir</div>
+<div class="player-num">#10</div>
+</div>
+<div class="player" data-name="Mack Hollins" data-num="13" data-pos="WR — внешний" data-info="Ветеран-ресивер, опасен на глубоких маршрутах." onclick="showTip(event, this)">
+<div class="player-icon wr">WR</div>
+<div class="player-name">Hollins</div>
+<div class="player-num">#13</div>
+</div>
+<div class="player" data-name="Keon Coleman" data-num="0" data-pos="WR — внешний" data-info="Молодой физически одарённый ресивер 2024 драфта. Высота 6'4, угроза в зоне." onclick="showTip(event, this)">
+<div class="player-icon wr">WR</div>
+<div class="player-name">Coleman</div>
+<div class="player-num">#0</div>
+</div>
+<div class="player" data-name="Curtis Samuel" data-num="1" data-pos="WR / RB гибрид" data-info="Универсальный оружие — работает из слота и аутсайда, опасен в беге после приёма." onclick="showTip(event, this)">
+<div class="player-icon wr">WR</div>
+<div class="player-name">Samuel</div>
+<div class="player-num">#1</div>
+</div>
+</div>
+
+<!-- Row 2: TE + QB + RB cluster -->
+<div class="row" style="margin-bottom: 12px;">
+<div class="player" data-name="Dalton Kincaid" data-num="86" data-pos="TE — приём" data-info="Главный принимающий тайт-энд. Опасен на маршрутах по середине поля." onclick="showTip(event, this)">
+<div class="player-icon te">TE</div>
+<div class="player-name">Kincaid</div>
+<div class="player-num">#86</div>
+</div>
+
+<div class="player" style="margin: 0 20px;" data-name="Josh Allen" data-num="17" data-pos="QB — квотербек" data-info="MVP-уровень. Контракт $330 млн в 2025. 4000+ ярдов пасом, 763 ярда бегом. Лидер всей лиги." onclick="showTip(event, this)">
+<div class="player-icon qb">QB<br>ALLEN</div>
+<div class="player-name" style="font-size:13px; color:#ff4466;">Josh Allen</div>
+<div class="player-num" style="color:#fff; font-size:11px;">#17</div>
+</div>
+
+<div class="player" data-name="James Cook" data-num="4" data-pos="RB — раннинбек" data-info="Стартовый раннинбек. Взрывной и быстрый. Отличная угроза в пасовой игре из бэкфилда." onclick="showTip(event, this)">
+<div class="player-icon rb">RB</div>
+<div class="player-name">J. Cook</div>
+<div class="player-num">#4</div>
+</div>
+</div>
+
+<!-- Row 3: Offensive Line -->
+<div class="row" style="margin-bottom:8px;">
+<div class="player" data-name="Spencer Brown" data-num="79" data-pos="RT — правый тэкл" data-info="Правый тэкл, защищает слепую сторону от пасрашеров." onclick="showTip(event, this)">
+<div class="player-icon ol">RT</div>
+<div class="player-name" style="font-size:10px;">Brown</div>
+<div class="player-num">#79</div>
+</div>
+<div class="player" data-name="O'Cyrus Torrence" data-num="55" data-pos="RG — правый гард" data-info="Мощный правый гард, один из лучших в НФЛ." onclick="showTip(event, this)">
+<div class="player-icon ol">RG</div>
+<div class="player-name" style="font-size:10px;">Torrence</div>
+<div class="player-num">#55</div>
+</div>
+<div class="player" data-name="Connor McGovern" data-num="60" data-pos="C — центр" data-info="Центр, снэпует мяч Аллену. Опытный лидер линии." onclick="showTip(event, this)">
+<div class="player-icon ol" style="background:#0d2d5a; border-color:#6aa0ff;">C</div>
+<div class="player-name" style="font-size:10px;">McGovern</div>
+<div class="player-num">#60</div>
+</div>
+<div class="player" data-name="David Edwards" data-num="77" data-pos="LG — левый гард" data-info="Левый гард офлайна." onclick="showTip(event, this)">
+<div class="player-icon ol">LG</div>
+<div class="player-name" style="font-size:10px;">Edwards</div>
+<div class="player-num">#77</div>
+</div>
+<div class="player" data-name="Dion Dawkins" data-num="73" data-pos="LT — левый тэкл" data-info="Капитан команды, один из лучших тэклов AFC. Защищает правую руку Аллена." onclick="showTip(event, this)">
+<div class="player-icon ol">LT</div>
+<div class="player-name" style="font-size:10px;">Dawkins</div>
+<div class="player-num">#73</div>
+</div>
+</div>
+
+<!-- Scrimmage line -->
+<div style="height:3px; background: linear-gradient(90deg, transparent, var(--bills-red), transparent); margin: 4px 0; opacity:0.7;"></div>
+<div style="text-align:right; font-size:9px; color:var(--bills-red); letter-spacing:2px; margin-bottom:8px; text-transform:uppercase;">Линия схватки</div>
+
+<!-- Defense zone placeholder -->
+<div style="height: 40px; display:flex; align-items:center; justify-content:center;">
+<span style="font-size:11px; color:rgba(255,255,255,0.2); letter-spacing:3px; text-transform:uppercase;">← Зона защиты соперника →</span>
+</div>
+```
+
+</div>
+</div>
+
+<!-- Legend -->
+
+<div class="legend">
+<div class="legend-item"><div class="legend-dot" style="background:var(--bills-red)"></div> QB</div>
+<div class="legend-item"><div class="legend-dot" style="background:#1a4fa8"></div> WR</div>
+<div class="legend-item"><div class="legend-dot" style="background:#0f3d7a"></div> TE</div>
+<div class="legend-item"><div class="legend-dot" style="background:#7a1520"></div> RB</div>
+<div class="legend-item"><div class="legend-dot" style="background:#1a3a6e"></div> OL</div>
+</div>
+
+<div class="formation-badge" style="margin-top:12px;">
+<span>Базовая расстановка: 11 Personnel (1 RB, 1 TE, 3 WR)</span>
+</div>
+
+<p style="font-size:10px; color:rgba(255,255,255,0.3); margin-top:14px; letter-spacing:1px; text-align:center;">Нажми на игрока для подробностей</p>
+
+<!-- Tooltip -->
+
+<div class="tooltip" id="tooltip">
+<h3 id="tip-name"></h3>
+<p id="tip-pos" style="color:var(--bills-red); font-size:11px; letter-spacing:1px;"></p>
+<p id="tip-info"></p>
+</div>
+
+<script>
+const tooltip = document.getElementById('tooltip');
+
+function showTip(e, el) {
+const name = el.dataset.name;
+const pos = el.dataset.pos;
+const info = el.dataset.info;
+document.getElementById('tip-name').textContent = name;
+document.getElementById('tip-pos').textContent = pos;
+document.getElementById('tip-info').textContent = info;
+tooltip.classList.add('visible');
+moveTip(e);
+}
+
+document.addEventListener('mousemove', (e) => {
+if (tooltip.classList.contains('visible')) moveTip(e);
+});
+
+function moveTip(e) {
+let x = e.clientX + 14;
+let y = e.clientY - 10;
+if (x + 200 > window.innerWidth) x = e.clientX - 214;
+tooltip.style.left = x + 'px';
+tooltip.style.top = y + 'px';
+}
+
+document.addEventListener('click', (e) => {
+if (!e.target.closest('.player')) tooltip.classList.remove('visible');
+});
+
+// Touch support
+document.querySelectorAll('.player').forEach(p => {
+p.addEventListener('touchstart', (e) => {
+e.preventDefault();
+const touch = e.touches[0];
+showTip({ clientX: touch.clientX, clientY: touch.clientY }, p);
+});
+});
+</script>
+
+</body>
+</html>
